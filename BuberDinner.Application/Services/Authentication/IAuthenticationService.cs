@@ -1,0 +1,1 @@
+namespace BuberDinner.Application.Services.Authentication;
