@@ -1,34 +1,60 @@
 using BuberDinner.Application.Common.Interfaces.Authentication;
+using BuberDinner.Application.Common.Interfaces.Persistence;
+using BuberDinner.Domain.Entities;
 
 namespace BuberDinner.Application.Services.Authentication;
 
-public class AuthenticationService(IJwtTokenGenerator jwtTokenGenerator) : IAuthenticationService
+public class AuthenticationService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository) : IAuthenticationService
 {
+    private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
+    private readonly IUserRepository _userRepository = userRepository;
+
     public AuthenticationResult Register(string firstName, string lastName, string email, string password)
     {
-        // Check if user already exists
+        // 1. Validate the user doesn't exist
+        if (_userRepository.GetUserByEmail(email) is not null)
+        {
+            throw new Exception("User with given email already exists");
+        }
 
-        // Create a new user (generate unique ID)
+        // 2. Create a new user (generate unique ID) & Persist to db
+        var user = new User
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            Password = password
+        };
 
-        // create JWT token
-        var userId = Guid.NewGuid();
-        var token = jwtTokenGenerator.GenerateToken(userId, firstName, lastName);
+        _userRepository.Add(user);
+
+        // 3. create JWT token
+        var token = _jwtTokenGenerator.GenerateToken(user);
 
         return new AuthenticationResult(
-            userId,
-            firstName,
-            lastName,
-            email,
+            user,
             token);
     }
 
     public AuthenticationResult Login(string email, string password)
     {
+        // 1. Validate the user exists
+        if (_userRepository.GetUserByEmail(email) is not User user)
+        {
+            throw new Exception("User with given email does not exist");
+        }
+
+        // 2. Validate the password is correct
+        if (user.Password != password)
+        {
+            throw new Exception("Invalid password");
+        }
+
+        // 3. Create JWT token
+        var token = _jwtTokenGenerator.GenerateToken(user);
+
         return new AuthenticationResult(
-            Guid.NewGuid(),
-            "firstName",
-            "lastName",
-            email,
-            "token");
+            user,
+            token);
     }
 }
