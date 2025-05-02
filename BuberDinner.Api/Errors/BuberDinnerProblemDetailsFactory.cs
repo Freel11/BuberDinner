@@ -1,0 +1,1 @@
+namespace BuberDinner.Api.Errors;
