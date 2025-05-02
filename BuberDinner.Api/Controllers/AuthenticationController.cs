@@ -1,13 +1,13 @@
 using BuberDinner.Application.Services.Authentication;
 using BuberDinner.Contracts.Authentication;
+using BuberDinner.Domain.Common.Errors;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuberDinner.Api.Controllers;
 
-[ApiController]
 [Route("auth")]
-public class AuthenticationController(IAuthenticationService authenticationService) : ControllerBase
+public class AuthenticationController(IAuthenticationService authenticationService) : ApiController
 {
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest registerRequest)
@@ -20,8 +20,26 @@ public class AuthenticationController(IAuthenticationService authenticationServi
 
         return authResult.Match(
             authResult => Ok(MapAuthResponse(authResult)),
-            _ => Problem(statusCode: StatusCodes.Status409Conflict, title: "Email already in use")
-        );
+            errors => Problem(errors));
+    }
+
+    [HttpPost("login")]
+    public IActionResult Login(LoginRequest loginRequest)
+    {
+        ErrorOr<AuthenticationResult> authResult = authenticationService.Login(
+            loginRequest.Email,
+            loginRequest.Password);
+
+        if (authResult.IsError && authResult.FirstError == Errors.Authentication.InvalidCredentials)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: authResult.FirstError.Description);
+        }
+
+        return authResult.Match(
+            authResult => Ok(MapAuthResponse(authResult)),
+            errors => Problem(errors));
     }
 
     private static AuthenticationResponse MapAuthResponse(AuthenticationResult authResult)
@@ -32,22 +50,5 @@ public class AuthenticationController(IAuthenticationService authenticationServi
             authResult.User.LastName,
             authResult.User.Email,
             authResult.Token);
-    }
-
-    [HttpPost("login")]
-    public IActionResult Login(LoginRequest loginRequest)
-    {
-        var authResult = authenticationService.Login(
-            loginRequest.Email,
-            loginRequest.Password);
-
-        var response = new AuthenticationResponse(
-            authResult.User.Id,
-            authResult.User.FirstName,
-            authResult.User.LastName,
-            authResult.User.Email,
-            authResult.Token);
-
-        return Ok(response);
     }
 }

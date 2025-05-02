@@ -1,5 +1,7 @@
+using BuberDinner.Api.Common.Http;
 using BuberDinner.Application;
 using BuberDinner.Infrastructure;
+using ErrorOr;
 
 var builder = WebApplication.CreateBuilder(args);
 {
@@ -11,7 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
     {
         options.CustomizeProblemDetails = (context) =>
         {
-            context.ProblemDetails.Extensions.Add("Custom Property", "Custom Value");
+            var errors = context.HttpContext.Items[HttpContextItemKeys.Errors] as List<Error>;
+
+            if (errors is not null)
+            {
+                context.ProblemDetails.Extensions.Add("errorCodes", errors.Select(e => e.Code));
+            }
         };
     });
 
