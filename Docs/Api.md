@@ -40,7 +40,7 @@ POST {{host}}/auth/register
   "firstName": "Jade",
   "lastName": "Freel",
   "email": "jadefreeljd@gmail.com",
-  "token": "token"
+  "token": "eyJhb...WmYGtk"
 }
 ```
 
@@ -71,6 +71,6 @@ POST {{host}}/auth/login
   "firstName": "Jade",
   "lastName": "Freel",
   "email": "jadefreeljd@gmail.com",
-  "token": "token"
+  "token": "eyJhb...WmYGtk"
 }
 ```
