@@ -18,6 +18,8 @@ public class RegisterCommandHandler(
         RegisterCommand command,
         CancellationToken cancellationToken)
     {
+        await Task.CompletedTask;
+
         // 1. Validate the user doesn't exist
         if (_userRepository.GetUserByEmail(command.Email) is not null)
         {
@@ -28,7 +30,7 @@ public class RegisterCommandHandler(
         var user = new User
         {
             FirstName = command.FirstName,
-            LastName = command.Lastname,
+            LastName = command.LastName,
             Email = command.Email,
             Password = command.Password
         };
