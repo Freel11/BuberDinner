@@ -2,6 +2,7 @@ using BuberDinner.Domain.Bill.ValueObjects;
 using BuberDinner.Domain.Common.Models;
 using BuberDinner.Domain.Common.ValueObjects;
 using BuberDinner.Domain.Dinner.Entities;
+using BuberDinner.Domain.Dinner.Enums;
 using BuberDinner.Domain.Dinner.ValueObjects;
 using BuberDinner.Domain.Host.ValueObjects;
 using BuberDinner.Domain.Menu.ValueObjects;
@@ -16,7 +17,7 @@ public sealed class Dinner : AggregateRoot<DinnerId>
     public string Description { get; }
     public DateTime? StartDateTime { get; }
     public DateTime? EndDateTime { get; }
-    public string Status { get; }
+    public DinnerStatus Status { get; }
     public bool IsPublic { get; }
     public int MaxGuests { get; }
     public Price Price { get; }
@@ -34,7 +35,7 @@ public sealed class Dinner : AggregateRoot<DinnerId>
         string description,
         DateTime? startDateTime,
         DateTime? endDateTime,
-        string status,
+        DinnerStatus status,
         bool isPublic,
         int maxGuests,
         Price price,
@@ -67,7 +68,6 @@ public sealed class Dinner : AggregateRoot<DinnerId>
         string description,
         DateTime? startDateTime,
         DateTime? endDateTime,
-        string status,
         bool isPublic,
         int maxGuests,
         Price price,
@@ -82,7 +82,7 @@ public sealed class Dinner : AggregateRoot<DinnerId>
             description,
             startDateTime,
             endDateTime,
-            status,
+            DinnerStatus.Upcoming,
             isPublic,
             maxGuests,
             price,
